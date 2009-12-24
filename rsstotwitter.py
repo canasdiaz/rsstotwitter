@@ -40,24 +40,25 @@ ERROR_MSG = 'Error parsing the feeds'
 class FeedParser:
 
     def __init__(self, feed_url, feed_ns, cache_file, verbose):
-        self.options = ['title', 'link', 'dc:date']
+        self.options = ['title', 'link']
 	self.node_name = "item"
 	self.feed_url = feed_url
 	self.feed_ns = feed_ns
 	self.cache_file = cache_file
         self.verbose = verbose
+	self.xml = parse(urlopen(self.feed_url))
 
     def get_content(self):
         try:
-            return self.get_data(parse(urlopen(self.feed_url)))
+            return self.get_data()
         except:
             print ERROR_MSG
             return []
 
-    def get_data(self, xml):
+    def get_data(self):
         data = []
-	xml_data = xml.getElementsByTagNameNS(self.feed_ns, self.node_name)
-	#xml_data.reverse()
+	#xml_data = xml.getElementsByTagNameNS(self.feed_ns, self.node_name)
+	xml_data = self.xml.getElementsByTagName(self.node_name)
 	for node in xml_data:
 	    entry={}
 	    for option in self.options:
@@ -67,6 +68,14 @@ class FeedParser:
         if ( len(thenew) < 1 ) and self.verbose:
             print "No new entries"
 	return thenew
+
+    def get_title(self):
+	try:
+	    xml_data = self.xml.getElementsByTagName("title")
+	except:
+            print ERROR_MSG
+            return ""
+	return xml_data[0].firstChild.data
 
     def add_cache(self, data):
 	fd = open(self.cache_file, 'a')
@@ -101,12 +110,13 @@ class FeedParser:
 
 class Sender:
 
-    def __init__(self,username, password, list_messages, verbose, post):
+    def __init__(self,username, password, list_messages, verbose, post, feed_title=""):
 	self.username = username
 	self.password = password
         self.list_messages = list_messages
         self.verbose = verbose
         self.post = post
+	self.feed_title = feed_title
         self.api = twitter.Api()
 	self.api = twitter.Api(username = self.username,\
 				 password = self.password)
@@ -119,12 +129,35 @@ class Sender:
                 sentm.append(i)
         return sentm
 
+    def compose_msg(self,link, text, feed_title=""):
+	# it limits the length of the text field
+	# spaces, link and feed_title are fixed
+	l = len(link) + len(text) + len(feed_title) + 3
+	if l > 140:
+	    fixl = len(link) + len(feed_title) + 3
+	    textl = 140 - fixl
+	    text = text[:textl-2] + ".."
+	    
+	output = text + " " + link
+	if len(feed_title) > 0:
+	    output = feed_title + ": "+ output
+	return output	    
+
     def post2twitter(self, message):
 	text = ""
 	tinylink = self.tiny_url(message["link"])
-	text = tinylink + " " + message["title"]
+
+	if len(self.feed_title) > 0:
+	    text = self.compose_msg(tinylink, message["title"], self.feed_title)
+	else:
+	    text = self.compose_msg(tinylink, message["title"])
+
 	if self.verbose and self.post:
-            print "Sending: " + text
+	    try:
+	    	uni = text.decode('unicode_escape')
+	    	print "Sending: " + uni.encode('latin-1')
+	    except UnicodeEncodeError:
+		print "ERROR printing the message in the terminal due to encoding errors"
         try:
             if self.post:
                 status = self.api.PostUpdate(text)
@@ -142,7 +175,7 @@ class Sender:
 FEED_NS = 'http://purl.org/rss/1.0/'
 
 # Some stuff about the project
-version = "0.1"
+version = "0.1.1"
 author = "(C) 2009 %s <%s>" % ("Luis Cañas Díaz", "lcanasdiaz@gmail.com")
 name = "RSS to Twitter %s - https//sourceforge.net/projects/rsstotwitter" % (version)
 credits = "\n%s \n%s\n" % (name, author)
@@ -203,9 +236,25 @@ def main():
     password = config.get('Configuration', 'password', 0)
     feed_url = config.get('Configuration', 'feed_url', 0)
 
+    try:
+    	include_feed_title = config.get('Configuration', 'include_feed_title', 0)
+    except ConfigParser.NoOptionError:
+	include_feed_title="False"
+
+    try:
+	include_title = config.get('Configuration', 'include_title', 0)
+    except ConfigParser.NoOptionError:
+ 	pass
+
     fp = FeedParser(feed_url, FEED_NS, username+".cache", verbose)
     data = fp.get_content()
-    s = Sender(username, password, data, verbose, post)
+    if include_feed_title == 'True':
+	feed_title = fp.get_title()
+    	s = Sender(username, password, data, verbose, post, feed_title)
+    elif include_title:
+	s = Sender(username, password, data, verbose, post, include_title)
+    else:
+	s = Sender(username, password, data, verbose, post)
     sent_messages = s.send()
     fp.add_cache(sent_messages)
 
