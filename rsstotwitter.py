@@ -244,6 +244,7 @@ def main():
     try:
 	include_title = config.get('Configuration', 'include_title', 0)
     except ConfigParser.NoOptionError:
+	include_title = None
  	pass
 
     fp = FeedParser(feed_url, FEED_NS, username+".cache", verbose)

@@ -1,3 +1,8 @@
+2010-02-04  Luis Cañas Díaz <lcanasdiaz@gmail.com>
+
+    * rsstotwitter.py:
+        - Fixing bug #2946036 from sourceforge
+
 2009-12-23  Luis Cañas Díaz <lcanasdiaz@gmail.com>
 
     * rsstotwitter.py:
