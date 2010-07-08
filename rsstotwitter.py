@@ -249,7 +249,7 @@ def main():
             isopt = 1
             post = 0
 
-    # it isn't a file and it isn't an option
+    # if it isn't a file and it isn't an option exit
     if ioerror and not isopt:
         print "\nIncorrect parameters"
         usage()
