@@ -1,0 +1,18 @@
+RSS to twitter
+
+* rsstotwitter is a very simple tool to update twitter
+accounts from RSS feeds. It is written in python and
+licensed under GPL
+
+* Author: Luis Cañas Díaz <lcanasdiaz@gmail.com>
+
+* rsstotwitter.py default.cfg
+
+* example of configuration file.
+(the fourth parameter is optional)
+
+[Configuration]
+username=your_twitter_user
+password=your_twitter_password
+feed_url=http://libresoft.es/ourplanet/daily-planet/RSS
+include_title=Some text before the entry content here
