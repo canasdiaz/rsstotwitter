@@ -1,3 +1,4 @@
+
 RSS to twitter
 
 * rsstotwitter is a very simple tool to update twitter
@@ -16,3 +17,11 @@ username=your_twitter_user
 password=your_twitter_password
 feed_url=http://libresoft.es/ourplanet/daily-planet/RSS
 include_title=Some text before the entry content here
+
+* need help?: 
+
+rsstotwitter.py --help
+
+* dependencies
+
+python-twitter

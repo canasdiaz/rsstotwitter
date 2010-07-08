@@ -176,8 +176,8 @@ FEED_NS = 'http://purl.org/rss/1.0/'
 
 # Some stuff about the project
 version = "0.1.1"
-author = "(C) 2009 %s <%s>" % ("Luis Cañas Díaz", "lcanasdiaz@gmail.com")
-name = "RSS to Twitter %s - https//sourceforge.net/projects/rsstotwitter" % (version)
+author = "(C) 2010 %s <%s>" % ("Luis Cañas Díaz", "lcanasdiaz@gmail.com")
+name = "RSS to Twitter %s - http://github.com/sanacl/rsstotwitter" % (version)
 credits = "\n%s \n%s\n" % (name, author)
 
 def usage ():
