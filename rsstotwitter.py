@@ -137,7 +137,7 @@ class Sender:
 	    fixl = len(link) + len(feed_title) + 3
 	    textl = 140 - fixl
 	    text = text[:textl-2] + ".."
-	    
+
 	output = text + " " + link
 	if len(feed_title) > 0:
 	    output = feed_title + ": "+ output
@@ -197,7 +197,7 @@ Options:
 
 def main():
     # Short (one letter) options. Those requiring argument followed by :
-    short_opts = "h:V:v"
+    short_opts = "hVv"
     # Long options (all started by --). Those requiring argument followed by =
     long_opts = ["help","version","cache-only","verbose"]
 
@@ -207,17 +207,34 @@ def main():
 
     try:
         opts, args = getopt.getopt (sys.argv[2:], short_opts, long_opts)
+        cfg_file = sys.argv[1]
     except getopt.GetoptError, e:
         print e
         sys.exit(1)
+    except IndexError:
+        if len(sys.argv) < 2 :
+            print "\nMissing parameters!"
+            usage()
+            sys.exit(1)
+        else:
+            print "\nUnknown error"
+            sys.exit(1)
 
-    if len(sys.argv) < 2:
-        print "Incorrect parameters"
-        usage()
-        sys.exit(1)
-    else:
-        cfg_file = sys.argv[1]
+    config = ConfigParser.ConfigParser()
+    ioerror = 0
+    try:
+        config.readfp(open(cfg_file))
+    except IOError:
+        try:
+            opts, args = getopt.getopt (sys.argv[1:], short_opts, long_opts)
+        except getopt.GetoptError:
+            print "\nOption not recognized"
+            usage()
+            sys.exit(1)
+        # it isn't a file but could be an option
+        ioerror = 1
 
+    isopt = 0
     for opt, value in opts:
         if opt in ("-h", "--help", "-help"):
             usage()
@@ -227,11 +244,17 @@ def main():
             sys.exit(0)
         elif opt in ("-v", "--verbose"):
             verbose = 1
+            isopt = 1
         elif opt in ("--cache-only"):
+            isopt = 1
             post = 0
 
-    config = ConfigParser.ConfigParser()
-    config.readfp(open(cfg_file))
+    # it isn't a file and it isn't an option
+    if ioerror and not isopt:
+        print "\nIncorrect parameters"
+        usage()
+        sys.exit(1)
+
     username = config.get('Configuration', 'username', 0)
     password = config.get('Configuration', 'password', 0)
     feed_url = config.get('Configuration', 'feed_url', 0)
