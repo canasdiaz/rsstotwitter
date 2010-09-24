@@ -1,27 +1,51 @@
-
 RSS to twitter
 
-* rsstotwitter is a very simple tool to update twitter
-accounts from RSS feeds. It is written in python and
-licensed under GPL
+* rsstotwitter is a very simple tool to update twitter accounts from RSS feeds.
+It is written in python and licensed under GPL
 
 * Author: Luis Cañas Díaz <lcanasdiaz@gmail.com>
 
 * rsstotwitter.py default.cfg
 
 * example of configuration file.
-(the fourth parameter is optional)
+(the parameter include_title is optional)
 
-[Configuration]
-username=your_twitter_user
-password=your_twitter_password
-feed_url=http://libresoft.es/ourplanet/daily-planet/RSS
-include_title=Some text before the entry content here
+  [Configuration]
+  consumer_key=your_consumer_key
+  consumer_secret=your_consumer_secret
+  access_token_key=your_access_token_key
+  access_token_secret=your_access_token_secret
+  feed_url=http://libresoft.es/ourplanet/daily-planet/RSS
+  include_title=Some text before the entry content here
 
-* need help?: 
+* need help?:
 
 rsstotwitter.py --help
 
 * dependencies
 
-python-twitter
+python-twitter and its dependencies
+
+* Problems with the authentication?
+
+Do you see the error “Error, the message could not be posted!”? During September
+2010 the twitter platform cut off the basic authentication method and now it is
+mandatory to use oAuth. If that’s your case you’ll need to install the latest
+version of python-twitter, see instructions below.
+
+* Installing the last version of python-twitter 
+
+- To install it have a look at the instructions here , I’ve tested the
+a936121dfd commit (Aug 24 2010)
+
+* Setting up the twitter access data
+
+- Go to the url http://twitter.com/oauth_clients and register a new application.
+You’ll have to create it with a name application, use your imagination
+- In the previous step you get a consumer key and a consumer secret. Use them in
+the python script get_access_token.py which is included in the python-twitter
+code
+- After executing the script get_access_token.py you’ll need to follow the
+instructions shown by the script to get a pincode from twitter
+- You should have now the access_token_key and the access_token_secret
+parameters. Include them in the configuration file

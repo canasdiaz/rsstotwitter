@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-
-# Copyright (C) 2009 Luis Cañas Díaz
+# Copyright (C) 2010 Luis Cañas Díaz
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,7 +11,7 @@
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Library General Public License for more details.
+# GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
@@ -110,16 +109,20 @@ class FeedParser:
 
 class Sender:
 
-    def __init__(self,username, password, list_messages, verbose, post, feed_title=""):
-	self.username = username
-	self.password = password
+    def __init__(self, ck, cs, atk, ats, list_messages, verbose, post, feed_title=""):
+	self.ck = ck
+	self.cs = cs
+        self.atk = atk
+        self.ats = ats
         self.list_messages = list_messages
         self.verbose = verbose
         self.post = post
 	self.feed_title = feed_title
         self.api = twitter.Api()
-	self.api = twitter.Api(username = self.username,\
-				 password = self.password)
+	self.api = twitter.Api(username = self.ck,\
+                                   password = self.cs,\
+                                   access_token_key = self.atk,\
+                                   access_token_secret = self.ats)
 	self.list_messages.reverse()
 
     def send(self):
@@ -141,7 +144,7 @@ class Sender:
 	output = text + " " + link
 	if len(feed_title) > 0:
 	    output = feed_title + ": "+ output
-	return output	    
+	return output
 
     def post2twitter(self, message):
 	text = ""
@@ -175,7 +178,7 @@ class Sender:
 FEED_NS = 'http://purl.org/rss/1.0/'
 
 # Some stuff about the project
-version = "0.2.1"
+version = "0.2.2"
 author = "(C) 2010 %s <%s>" % ("Luis Cañas Díaz", "lcanasdiaz@gmail.com")
 name = "RSS to Twitter %s - http://github.com/sanacl/rsstotwitter" % (version)
 credits = "\n%s \n%s\n" % (name, author)
@@ -255,8 +258,10 @@ def main():
         usage()
         sys.exit(1)
 
-    username = config.get('Configuration', 'username', 0)
-    password = config.get('Configuration', 'password', 0)
+    ck = config.get('Configuration', 'consumer_key', 0)
+    cs = config.get('Configuration', 'consumer_secret', 0)
+    atk = config.get('Configuration', 'access_token_key', 0)
+    ats = config.get('Configuration', 'access_token_secret', 0)
     feed_url = config.get('Configuration', 'feed_url', 0)
 
     try:
@@ -270,15 +275,15 @@ def main():
 	include_title = None
  	pass
 
-    fp = FeedParser(feed_url, FEED_NS, username+".cache", verbose)
+    fp = FeedParser(feed_url, FEED_NS, ck+".cache", verbose)
     data = fp.get_content()
     if include_feed_title == 'True':
 	feed_title = fp.get_title()
-    	s = Sender(username, password, data, verbose, post, feed_title)
+    	s = Sender(ck, cs, atk, ats, data, verbose, post, feed_title)
     elif include_title:
-	s = Sender(username, password, data, verbose, post, include_title)
+	s = Sender(ck, cs, atk, ats, data, verbose, post, include_title)
     else:
-	s = Sender(username, password, data, verbose, post)
+	s = Sender(ck, cs, atk, ats, data, verbose, post)
     sent_messages = s.send()
     fp.add_cache(sent_messages)
 
