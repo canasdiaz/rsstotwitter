@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2010 Luis Cañas Díaz
+# Copyright (C) 2011 Luis Cañas Díaz
+# Copyright (C) 2011 GSyC/LibreSoft, Universidad Rey Juan Carlos
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -163,7 +164,7 @@ class Sender:
 		print "ERROR printing the message in the terminal due to encoding errors"
         try:
             if self.post:
-                status = self.api.PostUpdate(text)
+                status = self.api.PostUpdate(text.encode('utf-8'))
         except urllib2.HTTPError:
             print "Error, the message could not be posted!"
             return 0
@@ -178,7 +179,7 @@ class Sender:
 FEED_NS = 'http://purl.org/rss/1.0/'
 
 # Some stuff about the project
-version = "0.2.2"
+version = "0.2.3"
 author = "(C) 2010 %s <%s>" % ("Luis Cañas Díaz", "lcanasdiaz@gmail.com")
 name = "RSS to Twitter %s - http://github.com/sanacl/rsstotwitter" % (version)
 credits = "\n%s \n%s\n" % (name, author)
